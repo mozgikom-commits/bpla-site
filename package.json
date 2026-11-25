@@ -1,0 +1,17 @@
+{
+  "name": "bpla-standalone-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Локальный демонстрационный сайт-предпросмотр о беспилотной авиации (cinematic editorial / drone technology).",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "build": "node scripts/check.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node scripts/test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

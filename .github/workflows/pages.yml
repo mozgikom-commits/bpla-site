@@ -1,0 +1,43 @@
+# Развёртывание статического демо-сайта «Беспилотная авиация» на GitHub Pages.
+# Исходники лежат в корне репозитория; на Pages публикуются только файлы сайта.
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble deployable site
+        run: |
+          mkdir -p _pages
+          cp index.html about.html materials.html faq.html contacts.html 404.html _pages/
+          cp -R css js assets _pages/
+          touch _pages/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_pages'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

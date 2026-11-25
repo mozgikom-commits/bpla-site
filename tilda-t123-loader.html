@@ -1,0 +1,95 @@
+<!-- ============================================================
+  ЗАГРУЗЧИК Tilda T123 — «Беспилотная авиация» (демо)
+  ------------------------------------------------------------
+  Вставьте ЭТОТ код целиком в блок Tilda типа «HTML-код» (T123)
+  на странице https://plan-leading-bullhead.tilda.ws/
+
+  Как это работает:
+  - Сайт размещён на GitHub Pages и загружается в iframe;
+  - дочерний мост (js/bridge.js) сообщает высоту контента,
+    и блок автоматически растягивается без двойной прокрутки;
+  - при переходах внутри сайта родительская страница возвращается
+    к началу iframe, поэтому навигация выглядит целостно.
+
+  Если репозиторий GitHub назван иначе, поменяйте SITE_URL ниже.
+============================================================ -->
+<div id="bpla-host" style="margin:0;padding:0;background:#101516;">
+  <div style="padding:40px 24px;text-align:center;color:#F2F0E9;background:#101516;font:16px/1.5 system-ui,sans-serif;">
+    Загрузка «Беспилотная авиация»…
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* --- НАСТРОЙКА --- */
+  var SITE_URL = 'https://mozgikom-commits.github.io/bpla-site/?v=20261125-1';
+  /* ----------------- */
+
+  var host = document.getElementById('bpla-host');
+  var trustedOrigin = '';
+  try { trustedOrigin = new URL(SITE_URL).origin; } catch (_) { trustedOrigin = ''; }
+  if (!host || !trustedOrigin) return;
+
+  var frame = document.createElement('iframe');
+  frame.title = 'Беспилотная авиация';
+  frame.src = SITE_URL;
+  frame.loading = 'eager';
+  frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+  frame.setAttribute('allow', 'fullscreen');
+  frame.setAttribute('allowfullscreen', '');
+  frame.style.cssText =
+    'display:block;width:100%;height:100vh;min-height:640px;border:0;background:#101516;';
+  host.replaceChildren(frame);
+
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  function frameTop() {
+    var y = window.scrollY !== undefined ? window.scrollY : (window.pageYOffset || 0);
+    return frame.getBoundingClientRect().top + y;
+  }
+
+  function resetToFrameTop() {
+    window.scrollTo({ top: Math.max(0, Math.round(frameTop())), behavior: 'auto' });
+  }
+
+  var hasRealHeight = false;
+  function applyHeight(h) {
+    if (!Number.isFinite(h) || h <= 0) return;
+    frame.style.height = Math.max(320, Math.ceil(h) + 2) + 'px';
+    frame.style.minHeight = '0';
+    hasRealHeight = true;
+  }
+
+  window.addEventListener('message', function (event) {
+    if (event.source !== frame.contentWindow) return;
+    if (event.origin !== trustedOrigin) return;
+    var data = event.data;
+    if (!data || typeof data.type !== 'string') return;
+
+    if (data.type === 'bpla-height') {
+      applyHeight(data.height);
+    } else if (data.type === 'bpla-ready') {
+      if (data.navigationType !== 'back_forward') {
+        resetToFrameTop();
+      }
+    } else if (data.type === 'bpla-navigation') {
+      resetToFrameTop();
+    }
+  });
+
+  /* Если через 12 секунд сайт не сообщил высоту (ещё не развёрнут на Pages),
+     показываем понятную подсказку вместо бесконечной загрузки. */
+  setTimeout(function () {
+    if (!hasRealHeight && host.contains(frame)) {
+      var tip = document.createElement('div');
+      tip.style.cssText =
+        'padding:16px 24px;color:#F2F0E9;background:#1B2425;font:14px/1.5 system-ui,sans-serif;';
+      tip.textContent =
+        'Сайт не ответил. Проверьте, что GitHub Pages развёрнут и SITE_URL в загрузчике указан верно.';
+      host.appendChild(tip);
+    }
+  }, 12000);
+})();
+</script>
