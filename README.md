@@ -32,11 +32,15 @@ bpla-standalone-preview/
 ├── 404.html            Кастомная 404
 ├── css/styles.css      Все стили
 ├── js/main.js          Интерактив
+├── js/bridge.js        Мост для встраивания в Tilda T123 (iframe GitHub Pages)
 ├── assets/             favicon.svg, hero-drone.svg
 ├── server.mjs          Локальный HTTP-сервер (чистые маршруты + 404)
 ├── scripts/check.mjs   Статическая проверка (build/check)
 ├── scripts/test.mjs    Интеграционный тест маршрутов
+├── tilda-t123-loader.html   Загрузчик для блока Tilda «HTML-код» (T123)
+├── .github/workflows/pages.yml  Публикация на GitHub Pages
 ├── package.json
+├── PROJECT_PASSPORT.md Паспорт проекта
 ├── README.md
 └── STATUS.md
 ```
@@ -62,6 +66,20 @@ npm run check   # статическая проверка: файлы, HTML-ст
 npm test        # интеграционный тест: сервер + HTTP-коды всех маршрутов
 npm run build   # аналог npm run check (сборки нет — статический стек)
 ```
+
+## Публикация в Tilda (блок T123)
+
+Сайт размещается на GitHub Pages и встраивается на страницу Tilda через блок
+«HTML-код» (T123). Загрузчик находится в [`tilda-t123-loader.html`](./tilda-t123-loader.html):
+
+1. Разместить исходники в репозитории `mozgikom-commits/bpla-site` и включить
+   GitHub Pages (workflow уже настроен в `.github/workflows/pages.yml`).
+2. Скопировать содержимое `tilda-t123-loader.html` целиком в блок T123 страницы
+   `https://plan-leading-bullhead.tilda.ws/`.
+3. Если репозиторий назван иначе — поменять `SITE_URL` в загрузчике.
+
+Мост `js/bridge.js` (подключён ко всем страницам) сообщает блоку T123 высоту
+контента и навигацию, поэтому iframe растягивается без двойной прокрутки.
 
 ## Дизайн
 
